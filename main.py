@@ -14,15 +14,15 @@ bot = Bot(token=settings.token)
 # Затем для восприятия ботом каких-либо команд необходимо прописать их с последующим выполнением функции.
 
 
-async def getUser(user_id):
+async def getUser(user_id):   # Позволяет получить информацию о пользователе (id, имя, фамилию и т.д.)
     try:
         return (await bot.api.users.get(user_ids=user_id))[0]
     except:
         return None
 
 name = ['Бобёр', 'Сова', 'Заяц']
-subs = []
-admin = 266911299
+subs = []   # Создаём пустой список подписчиков на рассылку админа
+admin = 266911299   # Добавление id администратора
 
 # В данном примере бот видит лишь ключевую фразу "Скажи привет",
 # воспринимая её командой для выполнения ниженаписанной функции.
@@ -39,13 +39,21 @@ async def Register(event: Message):
     user = await getUser(event.from_id)
     subs.append(int(user.id))
     member = await getUser(event.from_id)
-    await event.answer(f"Здравствуйте, {member.first_name}, подписка на новости активна))){subs}")
+    await event.answer(f"Здравствуйте, {member.first_name}, подписка на новости активна)))")
 
 @bot.on.message(text=['Кто я'])
-async def Photo(event: Message):
+async def Who(event: Message):
     index = randint(0, 2)
     member = await getUser(event.from_id)
     await event.answer(f"{member.first_name}, сегодня вы {name[index]}")
+
+@bot.on.message(text=['Фото'])
+async def Photo(event: Message):
+    await event.answer(attachment='photo-157889932_457565872%2Falbum-157889932_00%2Frev')
+
+# В attachments помещается быстрая ссылка на фото/видео/аудио/пост
+# https://vk.com/kartinochkistekstom?z=photo-157889932_457565872%2Falbum-157889932_00%2Frev
+# Необходимо из ссылок извлекать лишь текст после '='
 
 
 @bot.on.message(text=['/send <text>'])
@@ -54,10 +62,10 @@ async def Sending(event: Message, text=None):
     if member.id != admin:
         await event.answer(f"Вы не админ!")
     else:
-        for i in subs:
+        for i in subs:   # Attachment Можно применять и в bot.api.messages.send
             await bot.api.messages.send(peer_id=i,
                                         message=f"Пользователь {member.first_name} {member.last_name} написал следующее сообщение: \n {text}",
-                                        random_id=0)
+                                        attachment='photo-157889932_457565872%2Falbum-157889932_00%2Frev', random_id=0)
 
 
 @bot.on.message(text=[
